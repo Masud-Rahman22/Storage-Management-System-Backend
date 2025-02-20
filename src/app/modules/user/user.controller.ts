@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import catchAsync from "../../../utils/catchAsync";
+import catchAsync from "../../../utils/catchAsync"
 import { UserServices } from "./user.service";
 import config from "../../config";
 import sendResponse from "../../../utils/sendResponse";

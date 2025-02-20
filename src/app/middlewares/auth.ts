@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from 'express';
-import catchAsync from '../utils/catchAsync';
-import AppError from '../app/errors/AppError';
 import httpStatus from 'http-status';
 import jwt, { JwtPayload } from 'jsonwebtoken';
-import config from '../app/config';
-import { User } from '../app/modules/user/user.model';
-import { TUser } from '../app/modules/user/user.interface';
+import AppError from '../error/AppError';
+import config from '../config';
+import { User } from '../modules/user/user.model';
+import catchAsync from '../../utils/catchAsync';
+import { TUser } from '../modules/user/user.interface';
 import { FileModel, FolderModel } from '../app/modules/StorageSytem/storageSystem.model';
 import { info } from '../app/modules/StorageSytem/storageSystem.interface';
 

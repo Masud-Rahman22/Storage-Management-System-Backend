@@ -1,12 +1,12 @@
 import { ErrorRequestHandler } from 'express';
-import config from '../app/config';
 import { ZodError } from 'zod';
-import { TErrorSources } from '../app/interface/error';
-import handleZodError from '../app/errors/handleZodError';
-import handleValidationError from '../app/errors/handleValidationError';
-import handleCastError from '../app/errors/handleCastErrror';
-import handleDuplicateError from '../app/errors/handleDuplicateKeyError';
-import AppError from '../app/errors/AppError';
+import { TErrorSources } from '../interface/error';
+import handleZodError from '../error/handleZodError';
+import handleValidationError from '../error/handleValidationError';
+import handleCastError from '../error/handleCastError';
+import handleDuplicateError from '../error/handleDuplicateKeyError';
+import AppError from '../error/AppError';
+import config from '../config';
 
 const setErrorDetails = (simplifiedError: {
   statusCode: number;
