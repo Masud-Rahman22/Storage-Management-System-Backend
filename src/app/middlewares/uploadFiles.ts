@@ -4,7 +4,7 @@ import path from 'path';
 
 import httpStatus from 'http-status';
 import { Request } from 'express';
-import AppError from '../app/errors/AppError';
+import AppError from '../error/AppError';
 
 // Define allowed file extensions
 const allowedExtensions: string[] = ['jpg', 'jpeg', 'png', 'webp', 'doc', 'docx', 'txt', 'pdf'];
