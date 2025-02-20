@@ -1,0 +1,25 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.StorageSystemRouter = void 0;
+const express_1 = __importDefault(require("express"));
+const validateRequest_1 = require("../../../middlewares/validateRequest");
+const storageSystem_validation_1 = require("./storageSystem.validation");
+const auth_1 = require("../../../middlewares/auth");
+const storageSystem_controller_1 = require("./storageSystem.controller");
+const uploadFiles_1 = require("../../../middlewares/uploadFiles");
+const router = express_1.default.Router();
+router.post('/create-folder', (0, validateRequest_1.validateRequest)(storageSystem_validation_1.StorageValidationSchema.createFolderValidationSchema), (0, auth_1.isAllowed)('folder'), storageSystem_controller_1.StorageControllers.createFolder);
+router.post('/share-folder', (0, validateRequest_1.validateRequest)(storageSystem_validation_1.StorageValidationSchema.shareFolderValidationSchema), (0, auth_1.isAllowed)('folder'), storageSystem_controller_1.StorageControllers.shareFolder);
+router.post('/duplicate-folder', (0, validateRequest_1.validateRequest)(storageSystem_validation_1.StorageValidationSchema.duplicateFolderValidationSchema), (0, auth_1.isAllowed)('folder'), storageSystem_controller_1.StorageControllers.duplicateFolder);
+router.patch('/update-folder', (0, validateRequest_1.validateRequest)(storageSystem_validation_1.StorageValidationSchema.updateFolderValidationSchema), (0, auth_1.isAllowed)('folder'), storageSystem_controller_1.StorageControllers.updateFolder);
+router.delete('/delete-folder', (0, auth_1.isAllowed)('folder'), storageSystem_controller_1.StorageControllers.deleteFolder);
+router.post('/upload-file', (0, auth_1.isAllowed)('folder'), uploadFiles_1.upload.single('file'), storageSystem_controller_1.StorageControllers.createFile);
+router.post('/share-file', (0, validateRequest_1.validateRequest)(storageSystem_validation_1.StorageValidationSchema.shareFileValidationSchema), (0, auth_1.isAllowed)('file'), storageSystem_controller_1.StorageControllers.shareFile);
+router.post('/duplicate-file', (0, validateRequest_1.validateRequest)(storageSystem_validation_1.StorageValidationSchema.duplicateFileValidationSchema), (0, auth_1.isAllowed)('file'), storageSystem_controller_1.StorageControllers.duplicateFile);
+router.patch('/update-file', (0, validateRequest_1.validateRequest)(storageSystem_validation_1.StorageValidationSchema.updateFileValidationSchema), (0, auth_1.isAllowed)('file'), storageSystem_controller_1.StorageControllers.updateFile);
+router.delete('/delete-file', (0, auth_1.isAllowed)('file'), storageSystem_controller_1.StorageControllers.deleteFile);
+router.get('/get-data', (0, auth_1.auth)(), storageSystem_controller_1.StorageControllers.getData);
+exports.StorageSystemRouter = router;

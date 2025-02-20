@@ -1,0 +1,27 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.UserRouter = void 0;
+const express_1 = __importDefault(require("express"));
+const validateRequest_1 = require("../../../middlewares/validateRequest");
+const user_validation_1 = require("./user.validation");
+const user_controller_1 = require("./user.controller");
+const auth_1 = require("../../../middlewares/auth");
+const router = express_1.default.Router();
+router.post('/sign-up', (0, validateRequest_1.validateRequest)(user_validation_1.UserValidation.SignUpByEmailAndPasswordValidationSchema), user_controller_1.UserControllers.signUpUserByEmailandPassword);
+router.post('/log-in', (0, validateRequest_1.validateRequest)(user_validation_1.UserValidation.loginValidationSchema), user_controller_1.UserControllers.LoginUserByEmailandPassword);
+router.get('/log-out', (0, auth_1.auth)(), user_controller_1.UserControllers.logOut);
+router.post('/log-in-with-google', (0, validateRequest_1.validateRequest)(user_validation_1.UserValidation.loginWithGoogleValidationSchema), user_controller_1.UserControllers.LoginwithGoogle);
+router.post('/change-password', (0, auth_1.auth)(), (0, validateRequest_1.validateRequest)(user_validation_1.UserValidation.ChangePasswordValidationSchema), user_controller_1.UserControllers.changePassword);
+router.get('/refresh-token', (0, validateRequest_1.validateRequest)(user_validation_1.UserValidation.getAccessTokenByRefreshTokenValidationSchema), user_controller_1.UserControllers.getAccessToken);
+router.post('/forget-password', (0, validateRequest_1.validateRequest)(user_validation_1.UserValidation.forgetPasswordValidationSchema), user_controller_1.UserControllers.forgetPassword);
+router.post('/verify-OTP', (0, validateRequest_1.validateRequest)(user_validation_1.UserValidation.verifyOTPValidationSchema), user_controller_1.UserControllers.verifyOTP);
+router.post('/reset-password', (0, validateRequest_1.validateRequest)(user_validation_1.UserValidation.resetPasswordValidationSchema), user_controller_1.UserControllers.resetPassword);
+router.post('/create-PIN', (0, auth_1.auth)(), (0, validateRequest_1.validateRequest)(user_validation_1.UserValidation.PinValidationSchema), user_controller_1.UserControllers.createPinForSecureFolder);
+router.post('/log-in-to-secure-folder', (0, auth_1.auth)(), (0, validateRequest_1.validateRequest)(user_validation_1.UserValidation.PinValidationSchema), user_controller_1.UserControllers.LoginToSecureFolder);
+router.get('/log-out-from-secure-folder', (0, auth_1.auth)(), user_controller_1.UserControllers.logOutFromSecureFolder);
+router.patch('/change-name', (0, auth_1.auth)(), (0, validateRequest_1.validateRequest)(user_validation_1.UserValidation.ChangeNameValidationSchema), user_controller_1.UserControllers.changeName);
+router.get('/get-my-profile', (0, auth_1.auth)(), user_controller_1.UserControllers.getMyProfile);
+exports.UserRouter = router;
