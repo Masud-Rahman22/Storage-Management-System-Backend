@@ -6,11 +6,15 @@ import config from '../config';
 import { User } from '../modules/user/user.model';
 import catchAsync from '../../utils/catchAsync';
 import { TUser } from '../modules/user/user.interface';
-import { FileModel, FolderModel } from '../app/modules/StorageSytem/storageSystem.model';
-import { info } from '../app/modules/StorageSytem/storageSystem.interface';
+import {
+  FileModel,
+  FolderModel,
+} from '../modules/StorageSytem/storageSystem.model';
+import { info } from '../modules/StorageSytem/storageSystem.interface';
 
-
-const authenticateUser = async (req: Request): Promise<{ decoded: JwtPayload; user: TUser }> => {
+const authenticateUser = async (
+  req: Request,
+): Promise<{ decoded: JwtPayload; user: TUser }> => {
   const token = req.headers.authorization;
 
   // Check if token exists
@@ -21,7 +25,7 @@ const authenticateUser = async (req: Request): Promise<{ decoded: JwtPayload; us
   // Verify the token
   const decoded = jwt.verify(
     token,
-    config.JWT_ACCESS_SECRET as string
+    config.JWT_ACCESS_SECRET as string,
   ) as JwtPayload;
 
   const { email, iat } = decoded;
@@ -37,21 +41,18 @@ const authenticateUser = async (req: Request): Promise<{ decoded: JwtPayload; us
   if (user?.isDeleted) {
     throw new AppError(
       httpStatus.FORBIDDEN,
-      'User is already removed from the system'
+      'User is already removed from the system',
     );
   }
 
   // Check if the token was issued before the password was changed
   if (
     user?.passwordChangedAt &&
-    User.isJWTIssuedBeforePasswordChanged(
-      user.passwordChangedAt,
-      iat as number
-    )
+    User.isJWTIssuedBeforePasswordChanged(user.passwordChangedAt, iat as number)
   ) {
     throw new AppError(
       httpStatus.FORBIDDEN,
-      'You are not authorized. Log in again'
+      'You are not authorized. Log in again',
     );
   }
 
@@ -61,9 +62,8 @@ const authenticateUser = async (req: Request): Promise<{ decoded: JwtPayload; us
 
 export const auth = () => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-
     const { decoded } = await authenticateUser(req);
-    req.user = decoded
+    req.user = decoded;
     next();
   });
 };
@@ -97,7 +97,6 @@ export const auth = () => {
 //       );
 //     }
 
-
 //     //check if the token is generated before the  password has changed
 //     if (
 //       user?.passwordChangedAt &&
@@ -116,25 +115,25 @@ export const auth = () => {
 //   });
 // };
 
-
-
 export const isAllowed = (typeOfData: 'file' | 'folder') => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-
     const { decoded, user } = await authenticateUser(req);
-
 
     if (typeOfData === 'folder') {
       /**
-        * parentFolder source : 
-        *         1. who needs parent Folder they will use 'parentFolderID'
-        *         2. who doesn't need they will use 'folderID'
-        *         3. or req.query.folderID
-        *        
-        */
-      const parentFolderID = req.body?.parentFolderID || req.body?.folderID || req.query?.folderID;
+       * parentFolder source :
+       *         1. who needs parent Folder they will use 'parentFolderID'
+       *         2. who doesn't need they will use 'folderID'
+       *         3. or req.query.folderID
+       *
+       */
+      const parentFolderID =
+        req.body?.parentFolderID || req.body?.folderID || req.query?.folderID;
       if (!parentFolderID) {
-        throw new AppError(httpStatus.BAD_REQUEST, 'Parent folder ID is required');
+        throw new AppError(
+          httpStatus.BAD_REQUEST,
+          'Parent folder ID is required',
+        );
       }
 
       const parentFolderData = await FolderModel.findOne({
@@ -152,14 +151,17 @@ export const isAllowed = (typeOfData: 'file' | 'folder') => {
       if (parentFolderData.isSecured) {
         const { secureFolderToken } = req.cookies;
         if (!secureFolderToken) {
-          throw new AppError(httpStatus.UNAUTHORIZED, 'Unauthorized to access secure folder');
+          throw new AppError(
+            httpStatus.UNAUTHORIZED,
+            'Unauthorized to access secure folder',
+          );
         }
 
         // Validate the secure folder token
         // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
         const secureTokenData = jwt.verify(
           secureFolderToken,
-          config.JWT_ACCESS_SECRET as string
+          config.JWT_ACCESS_SECRET as string,
         ) as JwtPayload;
       }
 
@@ -167,20 +169,18 @@ export const isAllowed = (typeOfData: 'file' | 'folder') => {
         userID: parentFolderData.userID,
         parentFolderID: parentFolderData._id,
         allowedUser: parentFolderData.access,
-        isSecured: parentFolderData.isSecured
-      }
+        isSecured: parentFolderData.isSecured,
+      };
       req.user = decoded;
       req.info = folderInfo;
-    }
-    else if (typeOfData === 'file') {
-
+    } else if (typeOfData === 'file') {
       /**
-        * file source : 
-        *         1. who needs parent Folder they will use 'fileID'
-        *         2. who doesn't need they will use 'fileID'
-        *         3. or req.query.fileID
-        *        
-        */
+       * file source :
+       *         1. who needs parent Folder they will use 'fileID'
+       *         2. who doesn't need they will use 'fileID'
+       *         3. or req.query.fileID
+       *
+       */
       const fileID = req.body?.fileID || req.body?.fileID || req.query?.fileID;
       if (!fileID) {
         throw new AppError(httpStatus.BAD_REQUEST, 'File ID is required');
@@ -201,14 +201,17 @@ export const isAllowed = (typeOfData: 'file' | 'folder') => {
       if (fileData.isSecured) {
         const { secureFolderToken } = req.cookies;
         if (!secureFolderToken) {
-          throw new AppError(httpStatus.UNAUTHORIZED, 'Unauthorized to access secure folder');
+          throw new AppError(
+            httpStatus.UNAUTHORIZED,
+            'Unauthorized to access secure folder',
+          );
         }
 
         // Validate the secure folder token
         // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
         const secureTokenData = jwt.verify(
           secureFolderToken,
-          config.JWT_ACCESS_SECRET as string
+          config.JWT_ACCESS_SECRET as string,
         ) as JwtPayload;
       }
 
@@ -216,10 +219,8 @@ export const isAllowed = (typeOfData: 'file' | 'folder') => {
         userID: fileData.userID,
         parentFolderID: fileData.folderID,
         allowedUser: fileData.access,
-        isSecured: fileData.isSecured
-      }
-
-
+        isSecured: fileData.isSecured,
+      };
 
       req.user = decoded;
       req.info = folderInfo;

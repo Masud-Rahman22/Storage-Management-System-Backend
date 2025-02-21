@@ -164,7 +164,7 @@ const LoginToSecureFolder = (0, catchAsync_1.default)((req, res) => __awaiter(vo
         success: true,
         message: 'Secured Folder Login successfully and cookie updated',
         data: {
-            securedrootFolderID
+            securedrootFolderID,
         },
     });
 }));
@@ -233,5 +233,5 @@ exports.UserControllers = {
     createPinForSecureFolder,
     LoginToSecureFolder,
     logOutFromSecureFolder,
-    getMyProfile
+    getMyProfile,
 };

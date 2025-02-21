@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.validateRequest = void 0;
-const catchAsync_1 = __importDefault(require("../utils/catchAsync"));
+const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
 const validateRequest = (scheme) => {
     return (0, catchAsync_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
         // if everything ok then send to controller

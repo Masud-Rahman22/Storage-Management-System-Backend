@@ -15,14 +15,14 @@ const loginValidationSchema = zod_1.z.object({
 });
 const SignUpByEmailAndPasswordValidationSchema = zod_1.z.object({
     body: zod_1.z.object({
-        userName: zod_1.z.string({ required_error: "Name is required" }),
-        email: zod_1.z.string().email("Invalid email address"),
+        userName: zod_1.z.string({ required_error: 'Name is required' }),
+        email: zod_1.z.string().email('Invalid email address'),
         password: zod_1.z
             .string({
             invalid_type_error: 'Password must be string',
         })
-            .min(6, { message: 'password must be at least 6 character' })
-    })
+            .min(6, { message: 'password must be at least 6 character' }),
+    }),
 });
 const ChangePasswordValidationSchema = zod_1.z.object({
     body: zod_1.z.object({
@@ -48,12 +48,14 @@ const forgetPasswordValidationSchema = zod_1.z.object({
 const verifyOTPValidationSchema = zod_1.z.object({
     body: zod_1.z.object({
         email: zod_1.z.string({ required_error: 'Email is required' }),
-        OTP: zod_1.z.string({ required_error: 'OTP is required' })
+        OTP: zod_1.z.string({ required_error: 'OTP is required' }),
     }),
 });
 const resetPasswordValidationSchema = zod_1.z.object({
     cookies: zod_1.z.object({
-        verifiedUser: zod_1.z.string({ required_error: 'verification token is required' }),
+        verifiedUser: zod_1.z.string({
+            required_error: 'verification token is required',
+        }),
     }),
     body: zod_1.z.object({
         newPassword: zod_1.z.string({ required_error: 'Password is required' }),
@@ -61,7 +63,7 @@ const resetPasswordValidationSchema = zod_1.z.object({
 });
 const PinValidationSchema = zod_1.z.object({
     body: zod_1.z.object({
-        PIN: zod_1.z.string({ required_error: 'Pin is required' })
+        PIN: zod_1.z.string({ required_error: 'Pin is required' }),
     }),
 });
 exports.UserValidation = {

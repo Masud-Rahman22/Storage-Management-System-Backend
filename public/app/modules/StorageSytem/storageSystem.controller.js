@@ -17,7 +17,7 @@ const catchAsync_1 = __importDefault(require("../../../utils/catchAsync"));
 const storageSystem_service_1 = require("./storageSystem.service");
 const sendResponse_1 = __importDefault(require("../../../utils/sendResponse"));
 const http_status_1 = __importDefault(require("http-status"));
-const AppError_1 = __importDefault(require("../../errors/AppError"));
+const AppError_1 = __importDefault(require("../../error/AppError"));
 const createFolder = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const { isSecured, parentFolderID, userID, allowedUser } = req.info;

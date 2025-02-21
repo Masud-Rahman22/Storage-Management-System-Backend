@@ -14,6 +14,9 @@ export default {
   JWT_ACCESS_EXPIRES_IN: process.env.JWT_ACCESS_EXPIRES_IN,
   JWT_REFRESH_EXPIRES_IN: process.env.JWT_ACCESS_EXPIRES_IN,
   RESET_PASSWORD_URI: process.env.RESET_PASSWORD_URI,
-  GOOGLE_CLIENT_ID : process.env.GOOGLE_CLIENT_ID,
-  SERVER_URL : process.env.SERVER_URL,
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+  SERVER_URL: process.env.SERVER_URL,
+  Clourdinary_cloud_name: process.env.Clourdinary_cloud_name,
+  Clourdinary_api_key: process.env.Clourdinary_api_key,
+  Clourdinary_api_secret: process.env.Clourdinary_api_secret,
 };

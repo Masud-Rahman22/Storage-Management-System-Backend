@@ -5,7 +5,9 @@ const zod_1 = require("zod");
 const createFolderValidationSchema = zod_1.z.object({
     body: zod_1.z.object({
         folderName: zod_1.z.string({ required_error: 'Folder Name is required' }),
-        parentFolderID: zod_1.z.string({ required_error: 'Parent folder ID is required' }),
+        parentFolderID: zod_1.z.string({
+            required_error: 'Parent folder ID is required',
+        }),
     }),
 });
 const shareFolderValidationSchema = zod_1.z.object({
@@ -21,7 +23,9 @@ const duplicateFolderValidationSchema = zod_1.z.object({
 });
 const updateFolderValidationSchema = zod_1.z.object({
     body: zod_1.z.object({
-        folderName: zod_1.z.string({ required_error: 'Folder name is required' }).optional(),
+        folderName: zod_1.z
+            .string({ required_error: 'Folder name is required' })
+            .optional(),
         isFavorite: zod_1.z.boolean().optional(),
     }),
 });
@@ -49,5 +53,5 @@ exports.StorageValidationSchema = {
     updateFolderValidationSchema,
     shareFileValidationSchema,
     duplicateFileValidationSchema,
-    updateFileValidationSchema
+    updateFileValidationSchema,
 };

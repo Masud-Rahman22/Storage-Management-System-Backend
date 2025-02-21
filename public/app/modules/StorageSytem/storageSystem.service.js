@@ -15,11 +15,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.StorageServices = void 0;
 const storageSystem_model_1 = require("./storageSystem.model");
 const user_model_1 = require("../user/user.model");
-const AppError_1 = __importDefault(require("../../errors/AppError"));
 const http_status_1 = __importDefault(require("http-status"));
 const path_1 = __importDefault(require("path"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = __importDefault(require("../../config"));
+const AppError_1 = __importDefault(require("../../error/AppError"));
+const uploadFiles_1 = require("../../middlewares/uploadFiles");
 const createFolder = (folderName, isSecured, parentFolderID, FolderOwnerID, currentUserEmail, allowedParentFolderUser) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield user_model_1.User.findOne({ email: currentUserEmail }).select('_id');
     if (!user) {
@@ -30,7 +31,7 @@ const createFolder = (folderName, isSecured, parentFolderID, FolderOwnerID, curr
         folderName,
         parent: parentFolderID,
         isSecured,
-        access: allowedParentFolderUser
+        access: allowedParentFolderUser,
     });
     return newFolder;
 });
@@ -81,7 +82,9 @@ const allowedFileTypes = {
     PDF: ['pdf'],
 };
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const createFile = (file, folderInfo, currentUserEmail) => __awaiter(void 0, void 0, void 0, function* () {
+const createFile = (
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+file, folderInfo, currentUserEmail) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     if (!file) {
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'No file uploaded');
@@ -101,10 +104,12 @@ const createFile = (file, folderInfo, currentUserEmail) => __awaiter(void 0, voi
     }
     const fileExtension = path_1.default.extname(file.originalname).slice(1).toLowerCase();
     const dataType = Object.keys(allowedFileTypes).find((key) => allowedFileTypes[key].includes(fileExtension));
+    console.log('1');
+    const { secure_url, public_id } = yield (0, uploadFiles_1.sendImageToCloudinary)(file.originalname, file.buffer);
     const newFile = yield storageSystem_model_1.FileModel.create({
         name: file.originalname,
-        uniqueFileName: file.filename,
-        path: file.path,
+        uniqueFileName: `${file.originalname}-${public_id}-${user._id}-${Math.round(Math.random() * 1e9)}`,
+        path: secure_url,
         dataType,
         fileSize: file.size,
         isSecured: folderInfo.isSecured,
@@ -187,25 +192,32 @@ const getData = (query, email, cookies) => __awaiter(void 0, void 0, void 0, fun
         const folders = yield storageSystem_model_1.FolderModel.find({
             userID: userData._id,
             isFavorite: isFavorite_converted,
-            isSecured: false
-        }).sort('-createdAt').lean();
+            isSecured: false,
+        })
+            .sort('-createdAt')
+            .lean();
         const files = yield storageSystem_model_1.FileModel.find({
             userID: userData._id,
             isFavorite: isFavorite_converted,
-            isSecured: false
-        }).sort('-createdAt').lean();
+            isSecured: false,
+        })
+            .sort('-createdAt')
+            .lean();
         return { folders, files };
     }
     //search by data type
     if (dataType) {
-        if (typeof dataType !== 'string' || !['PDF', 'Image', 'Document'].includes(dataType)) {
+        if (typeof dataType !== 'string' ||
+            !['PDF', 'Image', 'Document'].includes(dataType)) {
             throw new AppError_1.default(http_status_1.default.BAD_REQUEST, `type must be string and value will be 'PDF', 'Image', 'Document'`);
         }
         const files = yield storageSystem_model_1.FileModel.find({
             userID: userData._id,
             dataType,
-            isSecured: false
-        }).sort('-createdAt').lean();
+            isSecured: false,
+        })
+            .sort('-createdAt')
+            .lean();
         return { files };
     }
     //search by day
@@ -220,13 +232,17 @@ const getData = (query, email, cookies) => __awaiter(void 0, void 0, void 0, fun
         const folders = yield storageSystem_model_1.FolderModel.find({
             userID: userData._id,
             createdAt: { $gte: startOfDay, $lte: endOfDay },
-            isSecured: false
-        }).sort('-createdAt').lean();
+            isSecured: false,
+        })
+            .sort('-createdAt')
+            .lean();
         const files = yield storageSystem_model_1.FileModel.find({
             userID: userData._id,
             createdAt: { $gte: startOfDay, $lte: endOfDay },
-            isSecured: false
-        }).sort('-createdAt').lean();
+            isSecured: false,
+        })
+            .sort('-createdAt')
+            .lean();
         return { folders, files };
     }
     //search by folder ID
@@ -241,7 +257,6 @@ const getData = (query, email, cookies) => __awaiter(void 0, void 0, void 0, fun
                 { access: { $in: [userData._id] } }, // get access by owner
             ],
         });
-        console.log(folderData);
         if (!folderData) {
             throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'No folder found');
         }
@@ -259,14 +274,18 @@ const getData = (query, email, cookies) => __awaiter(void 0, void 0, void 0, fun
                 { userID: userData._id }, //own folder
                 { access: { $in: [userData._id] } }, // get access by owner
             ],
-        }).sort('-createdAt').lean();
+        })
+            .sort('-createdAt')
+            .lean();
         const files = yield storageSystem_model_1.FileModel.find({
             folderID: folderID,
             $or: [
                 { userID: userData._id }, //own folder
                 { access: { $in: [userData._id] } }, // get access by owner
             ],
-        }).sort('-createdAt').lean();
+        })
+            .sort('-createdAt')
+            .lean();
         return { folders, files };
     }
     if (fileID) {
@@ -306,22 +325,30 @@ const getData = (query, email, cookies) => __awaiter(void 0, void 0, void 0, fun
         const secureTokenData = jsonwebtoken_1.default.verify(secureFolderToken, config_1.default.JWT_ACCESS_SECRET);
         const folders = yield storageSystem_model_1.FolderModel.find({
             parent: userData.securedrootFolderID,
-            userID: userData._id
-        }).sort('-createdAt').lean();
+            userID: userData._id,
+        })
+            .sort('-createdAt')
+            .lean();
         const files = yield storageSystem_model_1.FileModel.find({
             folderID: userData.securedrootFolderID,
-            userID: userData._id
-        }).sort('-createdAt').lean();
+            userID: userData._id,
+        })
+            .sort('-createdAt')
+            .lean();
         return { folders, files };
     }
     const folders = yield storageSystem_model_1.FolderModel.find({
         parent: userData.rootFolderID,
-        userID: userData._id
-    }).sort('-createdAt').lean();
+        userID: userData._id,
+    })
+        .sort('-createdAt')
+        .lean();
     const files = yield storageSystem_model_1.FileModel.find({
         folderID: userData.rootFolderID,
-        userID: userData._id
-    }).sort('-createdAt').lean();
+        userID: userData._id,
+    })
+        .sort('-createdAt')
+        .lean();
     return { folders, files };
 });
 exports.StorageServices = {
@@ -335,5 +362,5 @@ exports.StorageServices = {
     duplicateFile,
     updateFile,
     deleteFile,
-    getData
+    getData,
 };

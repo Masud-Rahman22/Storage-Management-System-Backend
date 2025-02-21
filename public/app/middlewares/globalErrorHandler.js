@@ -4,13 +4,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.globalErrorHandler = void 0;
-const config_1 = __importDefault(require("../app/config"));
 const zod_1 = require("zod");
-const handleZodError_1 = __importDefault(require("../app/errors/handleZodError"));
-const handleValidationError_1 = __importDefault(require("../app/errors/handleValidationError"));
-const handleCastErrror_1 = __importDefault(require("../app/errors/handleCastErrror"));
-const handleDuplicateKeyError_1 = __importDefault(require("../app/errors/handleDuplicateKeyError"));
-const AppError_1 = __importDefault(require("../app/errors/AppError"));
+const handleZodError_1 = __importDefault(require("../error/handleZodError"));
+const handleValidationError_1 = __importDefault(require("../error/handleValidationError"));
+const handleCastError_1 = __importDefault(require("../error/handleCastError"));
+const handleDuplicateKeyError_1 = __importDefault(require("../error/handleDuplicateKeyError"));
+const AppError_1 = __importDefault(require("../error/AppError"));
+const config_1 = __importDefault(require("../config"));
 const setErrorDetails = (simplifiedError) => {
     return {
         statusCode: simplifiedError.statusCode,
@@ -44,7 +44,7 @@ next) => {
     }
     else if ((err === null || err === void 0 ? void 0 : err.name) === 'CastError') {
         // Mongoose cast error
-        const simplifiedError = (0, handleCastErrror_1.default)(err);
+        const simplifiedError = (0, handleCastError_1.default)(err);
         ({ statusCode, message, errorSources } = setErrorDetails(simplifiedError));
     }
     else if ((err === null || err === void 0 ? void 0 : err.code) === 11000) {

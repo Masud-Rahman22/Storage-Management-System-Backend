@@ -8,13 +8,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FileModel = exports.FolderModel = void 0;
 const mongoose_1 = require("mongoose");
-const config_1 = __importDefault(require("../../config"));
+// import config from '../../config';
 const FolderSchema = new mongoose_1.Schema({
     userID: {
         type: mongoose_1.Schema.Types.ObjectId,
@@ -92,7 +89,7 @@ const FileSchema = new mongoose_1.Schema({
     },
     fileSize: {
         type: Number,
-        required: true
+        required: true,
     },
     isFavorite: {
         type: Boolean,
@@ -126,10 +123,10 @@ const FileSchema = new mongoose_1.Schema({
         virtuals: true,
     },
 });
-FileSchema.virtual('pathName').get(function () {
-    const baseURL = config_1.default.SERVER_URL;
-    return `${baseURL}/uploads/${this.uniqueFileName}`;
-});
+// FileSchema.virtual('pathName').get(function () {
+//   const baseURL = config.SERVER_URL;
+//   return `${baseURL}/uploads/${this.uniqueFileName}`;
+// });
 FileSchema.pre('save', function (next) {
     return __awaiter(this, void 0, void 0, function* () {
         // eslint-disable-next-line @typescript-eslint/no-this-alias

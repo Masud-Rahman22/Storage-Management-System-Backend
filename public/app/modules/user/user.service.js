@@ -14,7 +14,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserServices = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
-const AppError_1 = __importDefault(require("../../errors/AppError"));
 const user_model_1 = require("./user.model");
 const http_status_1 = __importDefault(require("http-status"));
 const storageSystem_model_1 = require("../StorageSytem/storageSystem.model");
@@ -25,6 +24,7 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const sendEmail_1 = require("../../../utils/sendEmail");
 const utility_1 = require("../../../utils/utility");
 const google_auth_library_1 = require("google-auth-library");
+const AppError_1 = __importDefault(require("../../error/AppError"));
 const UpdatePassword = (userID, newPassword) => __awaiter(void 0, void 0, void 0, function* () {
     const newHashedPassword = yield bcrypt_1.default.hash(newPassword, Number(config_1.default.bcrypt_salt_round));
     yield user_model_1.User.findOneAndUpdate({
@@ -38,11 +38,10 @@ const UpdatePassword = (userID, newPassword) => __awaiter(void 0, void 0, void 0
 const gClient = new google_auth_library_1.OAuth2Client(config_1.default.GOOGLE_CLIENT_ID);
 const googleAuth = (tokenId) => __awaiter(void 0, void 0, void 0, function* () {
     if (!tokenId) {
-        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "credential is required");
+        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'credential is required');
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result = yield gClient
-        .verifyIdToken({
+    const result = yield gClient.verifyIdToken({
         idToken: tokenId,
         audience: process.env.GOOGLE_CLIENT_ID,
     });
@@ -51,7 +50,7 @@ const googleAuth = (tokenId) => __awaiter(void 0, void 0, void 0, function* () {
         // already signed up user
         const jwtPayload = {
             email: user.email,
-            rootFolder: user.rootFolderID
+            rootFolder: user.rootFolderID,
         };
         const accessToken = (0, user_utils_1.createToken)(jwtPayload, config_1.default.JWT_ACCESS_SECRET, config_1.default.JWT_ACCESS_EXPIRES_IN);
         const refreshToken = (0, user_utils_1.createToken)(jwtPayload, config_1.default.JWT_REFRESH_SECRET, config_1.default.JWT_REFRESH_EXPIRES_IN);
@@ -64,7 +63,7 @@ const googleAuth = (tokenId) => __awaiter(void 0, void 0, void 0, function* () {
                 rootFolderID: user.rootFolderID,
             },
             accessToken,
-            refreshToken
+            refreshToken,
         };
     }
     else {
@@ -87,7 +86,9 @@ const googleAuth = (tokenId) => __awaiter(void 0, void 0, void 0, function* () {
                 access: [user[0]._id],
             };
             // Create the root folder
-            const newRootFolder = yield storageSystem_model_1.FolderModel.create([RootfolderData], { session });
+            const newRootFolder = yield storageSystem_model_1.FolderModel.create([RootfolderData], {
+                session,
+            });
             if (!newRootFolder.length) {
                 throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Failed to create Root folder');
             }
@@ -100,7 +101,7 @@ const googleAuth = (tokenId) => __awaiter(void 0, void 0, void 0, function* () {
             // create token and sent to the client
             const jwtPayload = {
                 email: user[0].email,
-                rootFolder: newRootFolder[0]._id
+                rootFolder: newRootFolder[0]._id,
             };
             const accessToken = (0, user_utils_1.createToken)(jwtPayload, config_1.default.JWT_ACCESS_SECRET, config_1.default.JWT_ACCESS_EXPIRES_IN);
             const refreshToken = (0, user_utils_1.createToken)(jwtPayload, config_1.default.JWT_REFRESH_SECRET, config_1.default.JWT_REFRESH_EXPIRES_IN);
@@ -113,7 +114,7 @@ const googleAuth = (tokenId) => __awaiter(void 0, void 0, void 0, function* () {
                     rootFolderID: newRootFolder[0]._id,
                 },
                 accessToken,
-                refreshToken
+                refreshToken,
             };
         }
         catch (error) {
@@ -149,7 +150,9 @@ const SignUp = (payload) => __awaiter(void 0, void 0, void 0, function* () {
             access: [user[0]._id],
         };
         // Create the root folder
-        const newRootFolder = yield storageSystem_model_1.FolderModel.create([RootfolderData], { session });
+        const newRootFolder = yield storageSystem_model_1.FolderModel.create([RootfolderData], {
+            session,
+        });
         if (!newRootFolder.length) {
             throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Failed to create Root folder');
         }
@@ -162,7 +165,7 @@ const SignUp = (payload) => __awaiter(void 0, void 0, void 0, function* () {
         // create token and sent to the client
         const jwtPayload = {
             email: user[0].email,
-            rootFolder: newRootFolder[0]._id
+            rootFolder: newRootFolder[0]._id,
         };
         const accessToken = (0, user_utils_1.createToken)(jwtPayload, config_1.default.JWT_ACCESS_SECRET, config_1.default.JWT_ACCESS_EXPIRES_IN);
         const refreshToken = (0, user_utils_1.createToken)(jwtPayload, config_1.default.JWT_REFRESH_SECRET, config_1.default.JWT_REFRESH_EXPIRES_IN);
@@ -175,7 +178,7 @@ const SignUp = (payload) => __awaiter(void 0, void 0, void 0, function* () {
                 rootFolderID: newRootFolder[0]._id,
             },
             accessToken,
-            refreshToken
+            refreshToken,
         };
     }
     catch (error) {
@@ -198,12 +201,13 @@ const login = (payload) => __awaiter(void 0, void 0, void 0, function* () {
         throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'User is already removed from system');
     }
     //checking if the password is correct
-    if ((user === null || user === void 0 ? void 0 : user.password) && !(yield user_model_1.User.isPasswordMatched(payload.password, user.password))) {
+    if ((user === null || user === void 0 ? void 0 : user.password) &&
+        !(yield user_model_1.User.isPasswordMatched(payload.password, user.password))) {
         throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'Password is not correct');
     }
     const jwtPayload = {
         email: user.email,
-        rootFolder: user.rootFolderID
+        rootFolder: user.rootFolderID,
     };
     const accessToken = (0, user_utils_1.createToken)(jwtPayload, config_1.default.JWT_ACCESS_SECRET, config_1.default.JWT_ACCESS_EXPIRES_IN);
     const refreshToken = (0, user_utils_1.createToken)(jwtPayload, config_1.default.JWT_REFRESH_SECRET, config_1.default.JWT_REFRESH_EXPIRES_IN);
@@ -216,7 +220,7 @@ const login = (payload) => __awaiter(void 0, void 0, void 0, function* () {
             rootFolderID: user.rootFolderID,
         },
         accessToken,
-        refreshToken
+        refreshToken,
     };
 });
 const changePassword = (userData, payload) => __awaiter(void 0, void 0, void 0, function* () {
@@ -231,7 +235,8 @@ const changePassword = (userData, payload) => __awaiter(void 0, void 0, void 0, 
         throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'User is already removed from system');
     }
     //checking if the old password is correcttly matched with db password
-    if (user.password && !(yield user_model_1.User.isPasswordMatched(payload.oldPassword, user === null || user === void 0 ? void 0 : user.password))) {
+    if (user.password &&
+        !(yield user_model_1.User.isPasswordMatched(payload.oldPassword, user === null || user === void 0 ? void 0 : user.password))) {
         throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'old Password is not correct');
     }
     yield UpdatePassword(user._id, payload.newPassword);
@@ -259,7 +264,7 @@ const getAccessToken = (token) => __awaiter(void 0, void 0, void 0, function* ()
     }
     const jwtPayload = {
         email: user.email,
-        rootFolder: user.rootFolderID
+        rootFolder: user.rootFolderID,
     };
     const accessToken = (0, user_utils_1.createToken)(jwtPayload, config_1.default.JWT_ACCESS_SECRET, config_1.default.JWT_ACCESS_EXPIRES_IN);
     return {
@@ -315,7 +320,7 @@ const verifyOTP = (email, OTP) => __awaiter(void 0, void 0, void 0, function* ()
         throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'OTP verification failed');
     }
     const jwtPayload = {
-        email: user.email
+        email: user.email,
     };
     const token = (0, user_utils_1.createVerifyUserToken)(jwtPayload, config_1.default.JWT_VERIFIED_USER_SECRET, '60m');
     return {
@@ -367,10 +372,12 @@ const createPinForSecureFolder = (userData, PIN) => __awaiter(void 0, void 0, vo
             userID: user._id,
             folderName: 'Secured Folder',
             access: [user._id],
-            isSecured: true
+            isSecured: true,
         };
         // Create the secured root folder
-        const securedRootFolder = yield storageSystem_model_1.FolderModel.create([securefolderData], { session });
+        const securedRootFolder = yield storageSystem_model_1.FolderModel.create([securefolderData], {
+            session,
+        });
         if (!securedRootFolder.length) {
             throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Failed to create secured Root folder');
         }
@@ -378,7 +385,7 @@ const createPinForSecureFolder = (userData, PIN) => __awaiter(void 0, void 0, vo
         //Update the user with rootFolderID
         const updateResult = yield user_model_1.User.updateOne({ _id: user._id }, {
             securedrootFolderID: securedRootFolder[0]._id,
-            secureFolderPin: HashedPin
+            secureFolderPin: HashedPin,
         }, { session });
         if (!updateResult.matchedCount || !updateResult.modifiedCount) {
             throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Failed to associate root folder with user');
@@ -409,12 +416,13 @@ const LoginToSecureFolder = (userData, PIN) => __awaiter(void 0, void 0, void 0,
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Pin and secure folder are not created');
     }
     //checking if the password is correct
-    if ((user === null || user === void 0 ? void 0 : user.password) && !(yield user_model_1.User.isPasswordMatched(PIN, user.secureFolderPin))) {
+    if ((user === null || user === void 0 ? void 0 : user.password) &&
+        !(yield user_model_1.User.isPasswordMatched(PIN, user.secureFolderPin))) {
         throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'Password is not correct');
     }
     const jwtPayload = {
         email: user.email,
-        securedrootFolderID: user.securedrootFolderID
+        securedrootFolderID: user.securedrootFolderID,
     };
     const accessToken = (0, user_utils_1.createSecuredFolderToken)(jwtPayload, config_1.default.JWT_ACCESS_SECRET, config_1.default.JWT_ACCESS_EXPIRES_IN);
     return {
@@ -428,7 +436,7 @@ const changeNameIntoDB = (userData, name) => __awaiter(void 0, void 0, void 0, f
     }, {
         userName: name,
     }, {
-        new: true
+        new: true,
     });
     return user;
 });
@@ -443,18 +451,32 @@ const getMyProfile = (email) => __awaiter(void 0, void 0, void 0, function* () {
             $group: {
                 _id: '$dataType',
                 totalSize: { $sum: '$fileSize' },
+                totalItems: { $sum: 1 },
             },
         },
     ]);
     let totalUsedFromLimit = 0;
-    const storageUsageByType = sizesByType.reduce((acc, { _id, totalSize }) => {
-        acc[_id] = totalSize;
+    let totalItemsOfFile = 0;
+    const storageUsageByType = sizesByType.reduce((acc, { _id, totalSize, totalItems }) => {
+        acc[_id] = { totalSize, totalItems }; // Properly storing both totalSize and totalItems
         totalUsedFromLimit += totalSize;
+        totalItemsOfFile += totalItems;
         return acc;
     }, {});
+    console.log(storageUsageByType, totalUsedFromLimit, totalItemsOfFile);
     const remainingStorage = user.limit - totalUsedFromLimit;
-    const recentFolders = yield storageSystem_model_1.FolderModel.find({ userID: user._id, isSecured: false }).sort({ updatedAt: -1 }).limit(8);
-    const recentFiles = yield storageSystem_model_1.FileModel.find({ userID: user._id, isSecured: false }).sort({ updatedAt: -1 }).limit(8);
+    const recentFolders = yield storageSystem_model_1.FolderModel.find({
+        userID: user._id,
+        isSecured: false,
+    })
+        .sort({ updatedAt: -1 })
+        .limit(8);
+    const recentFiles = yield storageSystem_model_1.FileModel.find({
+        userID: user._id,
+        isSecured: false,
+    })
+        .sort({ updatedAt: -1 })
+        .limit(8);
     const combinedResults = [...recentFolders, ...recentFiles];
     const sortedResults = combinedResults.sort((a, b) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -466,7 +488,7 @@ const getMyProfile = (email) => __awaiter(void 0, void 0, void 0, function* () {
         user,
         storageUsageByType,
         remainingStorage,
-        recent
+        recent,
     };
 });
 exports.UserServices = {
@@ -481,5 +503,5 @@ exports.UserServices = {
     changeNameIntoDB,
     createPinForSecureFolder,
     LoginToSecureFolder,
-    getMyProfile
+    getMyProfile,
 };

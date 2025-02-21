@@ -5,11 +5,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.StorageSystemRouter = void 0;
 const express_1 = __importDefault(require("express"));
-const validateRequest_1 = require("../../../middlewares/validateRequest");
-const storageSystem_validation_1 = require("./storageSystem.validation");
-const auth_1 = require("../../../middlewares/auth");
 const storageSystem_controller_1 = require("./storageSystem.controller");
-const uploadFiles_1 = require("../../../middlewares/uploadFiles");
+const validateRequest_1 = require("../../middlewares/validateRequest");
+const storageSystem_validation_1 = require("./storageSystem.validation");
+const auth_1 = require("../../middlewares/auth");
+const uploadFiles_1 = require("../../middlewares/uploadFiles");
 const router = express_1.default.Router();
 router.post('/create-folder', (0, validateRequest_1.validateRequest)(storageSystem_validation_1.StorageValidationSchema.createFolderValidationSchema), (0, auth_1.isAllowed)('folder'), storageSystem_controller_1.StorageControllers.createFolder);
 router.post('/share-folder', (0, validateRequest_1.validateRequest)(storageSystem_validation_1.StorageValidationSchema.shareFolderValidationSchema), (0, auth_1.isAllowed)('folder'), storageSystem_controller_1.StorageControllers.shareFolder);

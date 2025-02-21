@@ -13,13 +13,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.isAllowed = exports.auth = void 0;
-const catchAsync_1 = __importDefault(require("../utils/catchAsync"));
-const AppError_1 = __importDefault(require("../app/errors/AppError"));
 const http_status_1 = __importDefault(require("http-status"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const config_1 = __importDefault(require("../app/config"));
-const user_model_1 = require("../app/modules/user/user.model");
-const storageSystem_model_1 = require("../app/modules/StorageSytem/storageSystem.model");
+const AppError_1 = __importDefault(require("../error/AppError"));
+const config_1 = __importDefault(require("../config"));
+const user_model_1 = require("../modules/user/user.model");
+const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
+const storageSystem_model_1 = require("../modules/StorageSytem/storageSystem.model");
 const authenticateUser = (req) => __awaiter(void 0, void 0, void 0, function* () {
     const token = req.headers.authorization;
     // Check if token exists
@@ -101,12 +101,12 @@ const isAllowed = (typeOfData) => {
         const { decoded, user } = yield authenticateUser(req);
         if (typeOfData === 'folder') {
             /**
-              * parentFolder source :
-              *         1. who needs parent Folder they will use 'parentFolderID'
-              *         2. who doesn't need they will use 'folderID'
-              *         3. or req.query.folderID
-              *
-              */
+             * parentFolder source :
+             *         1. who needs parent Folder they will use 'parentFolderID'
+             *         2. who doesn't need they will use 'folderID'
+             *         3. or req.query.folderID
+             *
+             */
             const parentFolderID = ((_a = req.body) === null || _a === void 0 ? void 0 : _a.parentFolderID) || ((_b = req.body) === null || _b === void 0 ? void 0 : _b.folderID) || ((_c = req.query) === null || _c === void 0 ? void 0 : _c.folderID);
             if (!parentFolderID) {
                 throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Parent folder ID is required');
@@ -135,19 +135,19 @@ const isAllowed = (typeOfData) => {
                 userID: parentFolderData.userID,
                 parentFolderID: parentFolderData._id,
                 allowedUser: parentFolderData.access,
-                isSecured: parentFolderData.isSecured
+                isSecured: parentFolderData.isSecured,
             };
             req.user = decoded;
             req.info = folderInfo;
         }
         else if (typeOfData === 'file') {
             /**
-              * file source :
-              *         1. who needs parent Folder they will use 'fileID'
-              *         2. who doesn't need they will use 'fileID'
-              *         3. or req.query.fileID
-              *
-              */
+             * file source :
+             *         1. who needs parent Folder they will use 'fileID'
+             *         2. who doesn't need they will use 'fileID'
+             *         3. or req.query.fileID
+             *
+             */
             const fileID = ((_d = req.body) === null || _d === void 0 ? void 0 : _d.fileID) || ((_e = req.body) === null || _e === void 0 ? void 0 : _e.fileID) || ((_f = req.query) === null || _f === void 0 ? void 0 : _f.fileID);
             if (!fileID) {
                 throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'File ID is required');
@@ -176,7 +176,7 @@ const isAllowed = (typeOfData) => {
                 userID: fileData.userID,
                 parentFolderID: fileData.folderID,
                 allowedUser: fileData.access,
-                isSecured: fileData.isSecured
+                isSecured: fileData.isSecured,
             };
             req.user = decoded;
             req.info = folderInfo;

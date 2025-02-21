@@ -19,4 +19,7 @@ exports.default = {
     RESET_PASSWORD_URI: process.env.RESET_PASSWORD_URI,
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     SERVER_URL: process.env.SERVER_URL,
+    Clourdinary_cloud_name: process.env.Clourdinary_cloud_name,
+    Clourdinary_api_key: process.env.Clourdinary_api_key,
+    Clourdinary_api_secret: process.env.Clourdinary_api_secret,
 };
