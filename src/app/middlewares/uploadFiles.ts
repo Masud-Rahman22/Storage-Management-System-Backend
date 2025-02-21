@@ -12,6 +12,7 @@ const allowedExtensions: string[] = ['jpg', 'jpeg', 'png', 'webp', 'doc', 'docx'
 const storage = multer.memoryStorage();
 
 // File filter for validating file extensions
+// eslint-disable-next-line no-undef
 const fileFilter = (req: Request, file: Express.Multer.File, cb: FileFilterCallback): void => {
   const fileExtension = path.extname(file.originalname).slice(1).toLowerCase();
   if (!allowedExtensions.includes(fileExtension)) {

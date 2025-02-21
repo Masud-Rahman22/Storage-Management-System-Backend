@@ -23,6 +23,7 @@ const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'doc', 'docx', 'txt', '
 // Configure Multer to store file in memory (RAM)
 const storage = multer_1.default.memoryStorage();
 // File filter for validating file extensions
+// eslint-disable-next-line no-undef
 const fileFilter = (req, file, cb) => {
     const fileExtension = path_1.default.extname(file.originalname).slice(1).toLowerCase();
     if (!allowedExtensions.includes(fileExtension)) {
