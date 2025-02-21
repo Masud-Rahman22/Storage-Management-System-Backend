@@ -1,5 +1,4 @@
 import mongoose, { Types } from "mongoose";
-import AppError from "../../errors/AppError";
 import { TLoginUser, TUser } from "./user.interface";
 import { User } from "./user.model";
 import httpStatus from 'http-status';
@@ -12,6 +11,7 @@ import jwt from 'jsonwebtoken';
 import { sendEmail } from "../../../utils/sendEmail";
 import { generateOTP } from "../../../utils/utility";
 import { OAuth2Client } from "google-auth-library";
+import AppError from "../../error/AppError";
 
 const UpdatePassword = async (userID: Types.ObjectId, newPassword: string) => {
     const newHashedPassword = await bcrypt.hash(
@@ -699,16 +699,23 @@ const getMyProfile = async (email: string) => {
             $group: {
                 _id: '$dataType',
                 totalSize: { $sum: '$fileSize' },
+                totalItems: { $sum: 1 }, 
             },
         },
     ]);
-
-    let totalUsedFromLimit = 0
-    const storageUsageByType = sizesByType.reduce((acc, { _id, totalSize }) => {
-        acc[_id] = totalSize;
-        totalUsedFromLimit += totalSize
+    
+    let totalUsedFromLimit = 0;
+    let totalItemsOfFile = 0;
+    
+    const storageUsageByType = sizesByType.reduce((acc, { _id, totalSize, totalItems }) => {
+        acc[_id] = { totalSize, totalItems }; // Properly storing both totalSize and totalItems
+        totalUsedFromLimit += totalSize;
+        totalItemsOfFile += totalItems;
         return acc;
-    }, {} as Record<string, number>);
+    }, {} as Record<string, { totalSize: number; totalItems: number }>);
+    
+    console.log(storageUsageByType, totalUsedFromLimit, totalItemsOfFile);
+    
 
     const remainingStorage = user.limit - totalUsedFromLimit;
 

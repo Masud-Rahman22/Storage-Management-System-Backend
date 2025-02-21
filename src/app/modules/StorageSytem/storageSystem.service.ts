@@ -338,7 +338,6 @@ const getData = async (query: Record<string, unknown>, email: string, cookies: R
 
             }
         );
-console.log(folderData)
         if (!folderData) {
             throw new AppError(httpStatus.NOT_FOUND, 'No folder found');
         }
